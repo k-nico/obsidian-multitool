@@ -1,2 +1,2 @@
 # obsidian-loader
-creates Obsidian .md files from data in .csv files
+Creates Obsidian markdown files from data in comma-separated value files exported from Google Sheets.

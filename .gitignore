@@ -3,3 +3,6 @@ venv/
 
 # Config
 scripts/config.py
+
+# Python
+scripts/__pycache__/
