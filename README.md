@@ -1,2 +1,2 @@
-# obsidian-loader
-Creates Obsidian markdown files from data in comma-separated value files exported from Google Sheets.
+# obsidian-multitool
+This is a catch-all for various scripts and styling to supplement my personal Obsidian vaults.
