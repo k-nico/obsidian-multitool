@@ -1,0 +1,23 @@
+/* Wraps title on three lines */
+.bases-cards-property.mod-title .bases-cards-line {
+  font-size: var(--font-ui-small);
+  line-height: 1.0;
+  height: 3.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Hides property labels on cards */
+.bases-cards-label {
+  display: None;
+}
+
+/* Centers property text */
+.bases-cards-property {
+  text-align:center;
+}
