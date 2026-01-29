@@ -1,5 +1,5 @@
 from datetime import datetime
-import os.path
+from pathlib import Path
 import shutil
 
 from plexapi.server import PlexServer
@@ -12,33 +12,45 @@ md_dest_path = f'{obsidian_path}/Movies/db'
 
 plex = PlexServer(plex_base_url, plex_token)
 movies = plex.library.section('Movies')
+count = 0
 
 
 for video in movies.search():
-    title = video.title
-    sort_title = video.titleSort
-    release_date = video.originallyAvailableAt
-    downloaded = True
+    title = video.title.replace(': ', '- ')
+    sort_title = video.titleSort.replace(': ','- ')
     release_year = video.originallyAvailableAt.year
-    title_and_year = f'{title} ({release_year})'.replace(': ', '- ')
-    md_file = f'{title_and_year}.md'
-    is_movie = True
-    poster_path = f'{file_server_base_url}/Posters/Movies/{title_and_year}.jpeg'
+    downloaded = True
     textless_poster = True
 
-    new_file = f'{staging_path}/{md_file}'
+    title_and_year = f'{title} ({release_year})'
+    
+    poster_path = f'{file_server_base_url}/Posters/Movies/{title_and_year}.jpeg'
+    is_movie = True
+
+    md_file = f'{title_and_year}.md'
+
+    new_file = f'{md_src_path}/{md_file}'
 
     fileContent = f'''---
 Title: {title}
-ReleaseDate: {release_date}
-Downloaded: {downloaded}
-isMovie: {is_movie}
-Poster: {poster_path}
-TextlessPoster: {textless_poster}
 sortTitle: {sort_title}
+ReleaseYear: {release_year}
+Downloaded: {downloaded}
+TextlessPoster: {textless_poster}
+Poster: {poster_path}
+isMovie: {is_movie}
 ---'''
+
+    obsidian_file = Path(f'{md_dest_path}/{md_file}')
+
+    if obsidian_file.exists():
+        pass
+    else:
+        with open(new_file, 'x') as file:
+            file.write(fileContent)
     
-    with open(new_file, 'x') as file:
-        file.write(fileContent)
-    
-    shutil.move(new_file, md_dest_path)
+        shutil.move(new_file, md_dest_path)
+        print(f'{md_dest_path}/{md_file} created')
+        count += 1
+
+print(count)
