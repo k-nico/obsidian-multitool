@@ -1,46 +1,44 @@
-import csv
 from datetime import datetime
+import os.path
 import shutil
 
-from config import stagingPath, obsidianPath, fileServerBaseUrl
+from plexapi.server import PlexServer
 
-csvName = 'MovieExport.csv'
-csvSrcPath = f'{stagingPath}/{csvName}'
-mdSrcPath = f'{stagingPath}/Movies'
-mdDestPath = f'{obsidianPath}/Movies/db'
-movieList = []
+from config import staging_path, obsidian_path, file_server_base_url, plex_base_url, plex_token
 
 
-with open(csvSrcPath, 'r') as csvFile:
-    csvReader = csv.DictReader(csvFile)
+md_src_path = f'{staging_path}/Movies'
+md_dest_path = f'{obsidian_path}/Movies/db'
 
-    for row in csvReader:
-        movieList.append(row)
+plex = PlexServer(plex_base_url, plex_token)
+movies = plex.library.section('Movies')
 
-for movie in movieList:
-    title = movie.get('title')
-    releaseDate = movie.get('releaseDate')
-    downloaded = movie.get('downloaded')
-    releaseYear = datetime.strptime(releaseDate, '%m/%d/%Y').date().year
-    movieYear = f'{title} ({releaseYear})'
-    mdFile = f'{movieYear}.md'
-    poster = f'{fileServerBaseUrl}/Posters/Movies/{movieYear}.jpeg'
-    textlessPoster = movie.get('textlessPoster')
-    isMovie = movie.get('isMovie')
 
-    newFile = f'{stagingPath}/{mdFile}'
+for video in movies.search():
+    title = video.title
+    sort_title = video.titleSort
+    release_date = video.originallyAvailableAt
+    downloaded = True
+    release_year = video.originallyAvailableAt.year
+    title_and_year = f'{title} ({release_year})'.replace(': ', '- ')
+    md_file = f'{title_and_year}.md'
+    is_movie = True
+    poster_path = f'{file_server_base_url}/Posters/Movies/{title_and_year}.jpeg'
+    textless_poster = True
+
+    new_file = f'{staging_path}/{md_file}'
 
     fileContent = f'''---
 Title: {title}
-ReleaseDate: {releaseDate}
+ReleaseDate: {release_date}
 Downloaded: {downloaded}
-isMovie: {isMovie}
-Poster: {poster}
-TextlessPoster: {textlessPoster}
-sortTitle: {title}
+isMovie: {is_movie}
+Poster: {poster_path}
+TextlessPoster: {textless_poster}
+sortTitle: {sort_title}
 ---'''
     
-    with open(newFile, 'x') as file:
+    with open(new_file, 'x') as file:
         file.write(fileContent)
     
-    shutil.move(newFile,mdDestPath)
+    shutil.move(new_file, md_dest_path)
